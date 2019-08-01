@@ -8,6 +8,58 @@ static int bpoff;
 
 static int label;
 
+IRInfo irinfo[] = {
+	[IR_IMM] = {"IMM", IR_IMM},
+	[IR_MOV] = {"MOV", IR_KILL},
+	[IR_RETURN] = {"RET", IR_RETURN},
+	[IR_ALLOCA] = {"ALLOC", IR_ALLOCA},
+	[IR_LOAD] = {"LOAD", IR_LOAD},
+	[IR_STORE] = {"STORE", IR_STORE},
+	[IR_KILL] = {"KILL", IR_KILL},
+	[IR_NOP] = {"NOP", IR_NOP},
+	[IR_UNLESS] = {"UNLESS", IR_UNLESS},
+	[IR_LABEL] = {"LABEL", IR_LABEL},
+};
+
+static char *tostr(IR *ir)
+{
+	IRInfo info = irinfo[ir->op];
+	static int sp = 0;
+
+	switch (info.ty) {
+	case IR_IMM:
+		return format("%7s%3d[reg]%3d[val] ", info.name, ir->lhs, ir->rhs);
+	case IR_RETURN:
+		return format("%7s%3d    ", info.name, ir->lhs);
+	case IR_ALLOCA:
+		return format("%7s%3d%3d ", info.name, ir->lhs, ir->rhs);
+	case IR_LOAD:
+		return format("%7s%3d[reg]%3d[src] ", info.name, ir->lhs, --sp);
+	case IR_STORE:
+		return format("%7s%3d[reg]%3d[dest] ", info.name, ir->rhs, sp++);
+	case IR_NOP:
+		return format("%7s       ", info.name);
+	case IR_LABEL:
+		return format("%7s L.%d  ", info.name, ir->lhs);
+	case IR_KILL:
+		return format("%7s%3d    ", info.name, ir->lhs);
+	case IR_UNLESS:
+		return format("%7s%3d L.%d ", info.name, ir->lhs, ir->rhs);
+	default:
+		return format("unimplemented");
+	}
+}
+
+void dump_ir(Vector *irv)
+{
+	if (!debug)
+		return;
+
+	for (int i = 0; i < irv->len; i++)
+		printf("%s\n", tostr(irv->data[i]));
+	printf("\n");
+}
+
 static IR *add(int op, int lhs, int rhs)
 {
 	IR *ir = malloc(sizeof(IR));
@@ -111,5 +163,6 @@ Vector *gen_ir(Node *node)
 	gen_stmt(node);
 	alloca->rhs = bpoff;
 	add(IR_KILL, basereg, -1);
+	dump_ir(code);
 	return code;
 }

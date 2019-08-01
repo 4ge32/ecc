@@ -97,6 +97,11 @@ typedef struct {
 	int rhs;
 } IR;
 
+typedef struct {
+  char *name;
+  int ty;
+} IRInfo;
+
 Vector *gen_ir(Node *node);
 
 //regalloc.c
@@ -109,6 +114,7 @@ void gen_riscv(Vector *irv);
 
 //util.c
 noreturn void error(char *fmt, ...);
+char *format(char *fmt, ...);
 extern int debug;
 Map *new_map(void);
 void map_put(Map *map, char *key, void *val);
