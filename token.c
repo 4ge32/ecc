@@ -22,7 +22,7 @@ static Vector *scan(char *p)
 			continue;
 		}
 
-		if (strchr("+-*/;=()", *p)) {
+		if (strchr("+-*/;=(){}", *p)) {
 			add_token(v, *p, p);
 			p++;
 			continue;
@@ -63,7 +63,7 @@ static Vector *scan(char *p)
 Vector *tokenize(char *p)
 {
 	keywords = new_map();
-	map_put(keywords, "if", (void *)TK_COND);
+	map_put(keywords, "if", (void *)TK_IF);
 	map_put(keywords, "return", (void *)TK_RETURN);
 	return scan(p);
 }

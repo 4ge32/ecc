@@ -97,7 +97,7 @@ static Node *stmt()
 	Node *node = malloc(sizeof(Node));
 	Token *t = tokens->data[pos];
 
-	if (t->ty == TK_COND) {
+	if (t->ty == TK_IF) {
 		pos++;
 		node->ty = ND_COND;
 		expect('(');

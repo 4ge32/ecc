@@ -80,8 +80,8 @@ void show_token(Vector *v)
 			printf("TK_RETURN: %s\n", t->name);
 		else if (t->ty == TK_IDENT)
 			printf("TK_IDENT: %s\n", t->name);
-		else if (t->ty == TK_COND)
-			printf("TK_COND: %s\n", t->name);
+		else if (t->ty == TK_IF)
+			printf("TK_IF: %s\n", t->name);
 		else
 			printf("ELSE: %c\n", (char)t->ty);
 	}

@@ -34,7 +34,7 @@ void util_test();
 enum {
 	TK_NUM = 256,
 	TK_IDENT,
-	TK_COND,
+	TK_IF,
 	TK_RETURN,
 	TK_EOF,
 };
