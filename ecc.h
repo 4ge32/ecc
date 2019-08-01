@@ -57,7 +57,7 @@ enum {
 	ND_RETURN,
 	ND_COMP_STMT,
 	ND_EXPR_STMT,
-	ND_COND,
+	ND_IF,
 };
 
 typedef struct Node {

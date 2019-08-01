@@ -133,7 +133,7 @@ static void do_show_descendantTree(Node *node)
 		return;
 	}
 
-	if (node->ty == ND_COND) {
+	if (node->ty == ND_IF) {
 		show_expr(node->cond);
 		do_show_descendantTree(node->then);
 		return;

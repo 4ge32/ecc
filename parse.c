@@ -99,7 +99,7 @@ static Node *stmt()
 
 	if (t->ty == TK_IF) {
 		pos++;
-		node->ty = ND_COND;
+		node->ty = ND_IF;
 		expect('(');
 		node->cond = assign();
 		expect(')');

@@ -123,7 +123,7 @@ static void gen_stmt(Node *node)
 		return;
 	}
 
-	if (node->ty == ND_COND) {
+	if (node->ty == ND_IF) {
 		int r = gen_expr(node->cond);
 		int x = ++label;
 		add(IR_UNLESS, r, x);
