@@ -7,6 +7,7 @@ static Map *vars;
 static int bpoff;
 
 static int label;
+static int stkp;
 
 IRInfo irinfo[] = {
 	[IR_IMM] = {"IMM", IR_IMM},
@@ -60,12 +61,13 @@ void dump_ir(Vector *irv)
 	printf("\n");
 }
 
-static IR *add(int op, int lhs, int rhs)
+static IR *add(int op, int lhs, int rhs, int sp)
 {
 	IR *ir = malloc(sizeof(IR));
 	ir->op = op;
 	ir->lhs = lhs;
 	ir->rhs = rhs;
+	ir->sp = sp;
 	vec_push(code, ir);
 	return ir;
 }
@@ -83,65 +85,96 @@ static int gen_lval(Node *node)
 	return ++regno;
 }
 
-static int gen_expr(Node *node)
+static int gen_expr(Node *node, int *sp)
 {
 	if (node->ty == ND_NUM) {
 		int r = ++regno;
-		add(IR_IMM, r, node->val);
+		add(IR_IMM, r, node->val, *sp);
 		return r;
 	}
 
 	if (node->ty == ND_IDENT) {
 		int r = gen_lval(node);
-		add(IR_LOAD, r, r);
+		*sp -= 4;
+		add(IR_LOAD, r, r, *sp);
 		return r;
 	}
 	if (node->ty == '=') {
-		int rhs = gen_expr(node->rhs);
+		int rhs = gen_expr(node->rhs, sp);
 		int lhs = gen_lval(node->lhs);
-		add(IR_STORE, lhs, rhs);
-		add(IR_KILL, rhs, -1);
+		add(IR_STORE, lhs, rhs, *sp);
+		*sp += 4;
+		add(IR_KILL, rhs, -1, -1);
 		return lhs;
 	}
 
 	assert(strchr("+-*/", node->ty));
 
-	int lhs = gen_expr(node->lhs);
-	int rhs = gen_expr(node->rhs);
+	int lhs = gen_expr(node->lhs, sp);
+	int rhs = gen_expr(node->rhs, sp);
 
-	add(node->ty, lhs, rhs);
-	add(IR_KILL, rhs, -1);
+	add(node->ty, lhs, rhs, -1);
+	add(IR_KILL, rhs, -1, -1);
 	return lhs;
 }
 
-static void gen_stmt(Node *node)
+static void gen_stmt(Node *node, int *sp)
 {
 	if (node->ty == ND_RETURN) {
-		int r = gen_expr(node->expr);
-		add(IR_RETURN, r, -1);
-		add(IR_KILL, r, -1);
+		int r = gen_expr(node->expr, sp);
+		add(IR_RETURN, r, -1, -1);
+		add(IR_KILL, r, -1, -1);
 		return;
 	}
 
 	if (node->ty == ND_IF) {
-		int r = gen_expr(node->cond);
+		int r = gen_expr(node->cond, sp);
 		int x = ++label;
-		add(IR_UNLESS, r, x);
-		add(IR_KILL, r, -1);
-		gen_stmt(node->then);
-		add(IR_LABEL, x, -1);
+		add(IR_UNLESS, r, x, -1);
+		add(IR_KILL, r, -1, -1);
+		gen_stmt(node->then, sp);
+		add(IR_LABEL, x, -1, -1);
+		return;
+	}
+
+	if (node->ty == ND_ELSE) {
+		gen_stmt(node->then, sp);
+		return;
+	}
+
+	if (node->ty == ND_IF_BLOCK) {
+		int r = gen_expr(node->cond, sp);
+		int x = ++label;
+		int y = ++label;
+		int s = stkp;
+		add(IR_UNLESS, r, x, -1);
+		add(IR_KILL, r, -1, -1);
+		for (int i = 0; i < node->stmts->len; i++)
+			gen_stmt(node->stmts->data[i], &s);
+		add(IR_BLOCK_END, y, -1, -1);
+		add(IR_LABEL, x, -1, -1);
+		return;
+	}
+
+	if (node->ty == ND_ELSE_BLOCK) {
+		int x = label;
+		int s = stkp;
+		for (int i = 0; i < node->stmts_then->len; i++)
+			gen_stmt(node->stmts_then->data[i], &s);
+		add(IR_LABEL, x, -1, -1);
+		stkp = s;
 		return;
 	}
 
 	if (node->ty == ND_EXPR_STMT) {
-		int r = gen_expr(node->expr);
-		add(IR_KILL, r, -1);
+		int r = gen_expr(node->expr, sp);
+		add(IR_KILL, r, -1, -1);
 		return;
 	}
 
 	if (node->ty == ND_COMP_STMT) {
 		for (int i = 0; i < node->stmts->len; i++)
-			gen_stmt(node->stmts->data[i]);
+			gen_stmt(node->stmts->data[i], &stkp);
 		return;
 	}
 
@@ -157,12 +190,13 @@ Vector *gen_ir(Node *node)
 	basereg = 0;
 	vars = new_map();
 	bpoff = 0;
+	stkp = 0;
 	label = 0;
 
-	IR *alloca = add(IR_ALLOCA, basereg, -1);
-	gen_stmt(node);
+	IR *alloca = add(IR_ALLOCA, basereg, -1, -1);
+	gen_stmt(node, &stkp);
 	alloca->rhs = bpoff;
-	add(IR_KILL, basereg, -1);
+	add(IR_KILL, basereg, -1, -1);
 	dump_ir(code);
 	return code;
 }

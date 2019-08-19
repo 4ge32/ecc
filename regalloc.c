@@ -47,9 +47,9 @@ void alloc_regs(Vector *irv)
 		case IR_RETURN:
 			ir->lhs = alloc(ir->lhs);
 			break;
+		case IR_STORE:
 		case IR_MOV:
 		case IR_LOAD:
-		case IR_STORE:
 		case '+':
 		case '-':
 		case '*':
@@ -60,11 +60,14 @@ void alloc_regs(Vector *irv)
 		case IR_UNLESS:
 			ir->lhs = alloc(ir->lhs);
 			break;
+		case IR_ELSE:
+			break;
 		case IR_KILL:
 			kill(reg_map[ir->lhs]);
 			ir->op = IR_NOP;
 			break;
 		case IR_LABEL:
+		case IR_BLOCK_END:
 			break;
 		default:
 			assert(0 && "unknown operator");

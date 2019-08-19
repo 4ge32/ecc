@@ -9,12 +9,12 @@ noreturn void error(char *fmt, ...) {
 }
 
 char *format(char *fmt, ...) {
-  char buf[2048];
-  va_list ap;
-  va_start(ap, fmt);
-  vsnprintf(buf, sizeof(buf), fmt, ap);
-  va_end(ap);
-  return strdup(buf);
+	char buf[2048];
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(buf, sizeof(buf), fmt, ap);
+	va_end(ap);
+	return strdup(buf);
 }
 
 Vector *new_vec(void)
@@ -84,15 +84,17 @@ void show_token(Vector *v)
 	for (int i = 0; i < v->len; i++) {
 		Token *t = v->data[i];
 		if (t->ty == TK_NUM)
-			printf("TK_NUM: %d\n", t->val);
+			printf("TK_NUM:    %d\n", t->val);
 		else if (t->ty == TK_RETURN)
-			printf("TK_RETURN: %s\n", t->name);
+			printf("TK_RETURN: %s(%d)\n", t->name, t->ty);
 		else if (t->ty == TK_IDENT)
-			printf("TK_IDENT: %s\n", t->name);
+			printf("TK_IDENT:  %s(%d)\n", t->name, t->ty);
 		else if (t->ty == TK_IF)
-			printf("TK_IF: %s\n", t->name);
+			printf("TK_IF:     %s(%d)\n", t->name, t->ty);
+		else if (t->ty == TK_ELSE)
+			printf("TK_ELSE:   %s(%d)\n", t->name, t->ty);
 		else
-			printf("ELSE: %c\n", (char)t->ty);
+			printf("ELSE:      %c(%d)\n", (char)t->ty, t->ty);
 	}
 	printf("\n");
 }
@@ -136,6 +138,18 @@ static void do_show_descendantTree(Node *node)
 	if (node->ty == ND_IF) {
 		show_expr(node->cond);
 		do_show_descendantTree(node->then);
+		return;
+	}
+
+	if (node->ty == ND_ELSE) {
+		do_show_descendantTree(node->then);
+		return;
+	}
+
+	if (node->ty == ND_IF_BLOCK) {
+		show_expr(node->cond);
+		for (int i = 0; i < node->stmts->len; i++)
+			do_show_descendantTree(node->stmts->data[i]);
 		return;
 	}
 

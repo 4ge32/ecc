@@ -10,7 +10,6 @@ static char *gen_label()
 
 void gen_riscv(Vector *irv) {
 	char *ret = gen_label();
-	int sp = 0;
 
 	for (int i = 0; i < irv->len; i++) {
 		IR *ir = irv->data[i];
@@ -32,18 +31,23 @@ void gen_riscv(Vector *irv) {
 			printf("  mv   %s, sp\n", regs[ir->lhs]);
 			break;
 		case IR_LOAD:
-			sp -= 4;
-			printf("  lw   %s, %d(sp)\n", regs[ir->lhs], sp);
+			printf("  lw   %s, %d(sp)\n", regs[ir->lhs], ir->sp);
 			break;
 		case IR_STORE:
-			printf("  sw   %s, %d(sp)\n", regs[ir->rhs], sp);
-			sp += 4;
+			printf("  mv   %s, %s\n", regs[ir->lhs], regs[ir->rhs]);
+			printf("  sw   %s, %d(sp)\n", regs[ir->lhs], ir->sp);
 			break;
 		case IR_UNLESS:
 			printf("  beq  %s, zero, .L%d\n", regs[ir->lhs], ir->rhs);
 			break;
+		case IR_ELSE:
+			printf("  j   .L%d\n", ir->lhs);
+			break;
 		case IR_LABEL:
 			printf(".L%d:\n", ir->lhs);
+			break;
+		case IR_BLOCK_END:
+			printf("  j   .L%d\n", ir->lhs);
 			break;
 		case '+':
 			printf("  add  %s, %s, %s\n",

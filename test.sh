@@ -16,6 +16,20 @@ try() {
   fi
 }
 
+if [ $# = 1 ]; then
+  if [ $1 = 'now' ]; then
+    echo 'a=2; return a;'
+    ./ecc 'a=2; return a;'
+    #echo 'if (0) return 2; else return 3;'
+    #./ecc 'if (0) {return 2;} else {return 3;}'
+    #echo 'if (1) {return 2;} else {return 3;}'
+    #./ecc 'if (1) {return 2;} else {return 3;}' -debug
+    echo 'if (0) { a = 2; b = 3; } else {a = 10; b = 20; } return a + b;'
+    ./ecc 'if (0) { a = 2; b = 3; } else {a = 10; b = 20; } return a + b;' -debug
+    exit 0
+  fi
+fi
+
 try 10 'return 2*3+4;'
 try 14 'return 2+3*4;'
 try 26 'return 2*3+4*5;'
@@ -36,5 +50,10 @@ try 2 'if (1) return 2; return 3;'
 try 3 'if (0) return 2; return 3;'
 try 2 'if (1) return 2; else return 3;'
 try 3 'if (0) return 2; else return 3;'
+
+try 2 'if (1) {return 2;} else {return 3;}'
+try 3 'if (0) {return 2;} else {return 3;}'
+try 5 'if (1) { a = 2; b = 3; } else {a = 10; b = 20; } return a + b;'
+try 30 'if (0) { a = 2; b = 3; } else {a = 10; b = 20; } return a + b;'
 
 echo OK

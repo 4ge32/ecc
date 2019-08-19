@@ -103,7 +103,40 @@ static Node *stmt()
 		expect('(');
 		node->cond = assign();
 		expect(')');
-		node->then = stmt();
+
+		// {}
+		t = tokens->data[pos];
+		if (t->ty == '{') {
+			node->ty = ND_IF_BLOCK;
+			expect('{');
+			node->stmts = new_vec();
+			while (t->ty != '}') {
+				vec_push(node->stmts, stmt());
+				t = tokens->data[pos];
+			}
+			expect('}');
+		} else {
+			node->then = stmt();
+		}
+		return node;
+	}
+
+	if (t->ty == TK_ELSE) {
+		pos++;
+		t = tokens->data[pos];
+		if (t->ty == '{') {
+			expect('{');
+			node->stmts_then = new_vec();
+			while (t->ty != '}') {
+				vec_push(node->stmts_then, stmt());
+				t = tokens->data[pos];
+			}
+			expect('}');
+			node->ty = ND_ELSE_BLOCK;
+		} else {
+			node->ty = ND_ELSE;
+			node->then = stmt();
+		}
 		return node;
 	}
 

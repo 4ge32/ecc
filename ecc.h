@@ -35,6 +35,8 @@ enum {
 	TK_NUM = 256,
 	TK_IDENT,
 	TK_IF,
+	TK_BLOCK_END,
+	TK_ELSE,
 	TK_RETURN,
 	TK_EOF,
 };
@@ -58,6 +60,9 @@ enum {
 	ND_COMP_STMT,
 	ND_EXPR_STMT,
 	ND_IF,
+	ND_ELSE,
+	ND_IF_BLOCK,
+	ND_ELSE_BLOCK,
 };
 
 typedef struct Node {
@@ -68,6 +73,7 @@ typedef struct Node {
 	char *name;
 	struct Node *expr;
 	Vector *stmts;
+	Vector *stmts_then;
 
 	// if
 	struct Node *cond;
@@ -89,12 +95,15 @@ enum {
 	IR_NOP,
 	IR_UNLESS,
 	IR_LABEL,
+	IR_BLOCK_END,
+	IR_ELSE,
 };
 
 typedef struct {
 	int op;
 	int lhs;
 	int rhs;
+	int sp;
 } IR;
 
 typedef struct {
@@ -122,4 +131,7 @@ void *map_get(Map *map, char *key);
 bool map_exists(Map *map, char *key);
 void show_token(Vector *v);
 void show_descendantTree(Node *node);
+
+#define TEST \
+	printf("%s: %d\n", __func__, __LINE__)
 
