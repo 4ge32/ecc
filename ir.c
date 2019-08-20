@@ -20,12 +20,15 @@ IRInfo irinfo[] = {
 	[IR_NOP] = {"NOP", IR_NOP},
 	[IR_UNLESS] = {"UNLESS", IR_UNLESS},
 	[IR_LABEL] = {"LABEL", IR_LABEL},
+	[IR_BLOCK_END] = {"BLK_END", IR_BLOCK_END},
+	[IR_ELSE] = {"ELSE", IR_ELSE},
+	['+'] = {"ADD", '+'},
+	['-'] = {"SUB", '-'},
 };
 
 static char *tostr(IR *ir)
 {
 	IRInfo info = irinfo[ir->op];
-	static int sp = 0;
 
 	switch (info.ty) {
 	case IR_IMM:
@@ -35,19 +38,23 @@ static char *tostr(IR *ir)
 	case IR_ALLOCA:
 		return format("%7s%3d%3d ", info.name, ir->lhs, ir->rhs);
 	case IR_LOAD:
-		return format("%7s%3d[reg]%3d[src] ", info.name, ir->lhs, --sp);
+		return format("%7s%3d[reg]%3d[src] ", info.name, ir->lhs, ir->sp);
 	case IR_STORE:
-		return format("%7s%3d[reg]%3d[dest] ", info.name, ir->rhs, sp++);
+		return format("%7s%3d[reg]%3d[dest] ", info.name, ir->rhs, ir->sp);
 	case IR_NOP:
 		return format("%7s       ", info.name);
-	case IR_LABEL:
-		return format("%7s L.%d  ", info.name, ir->lhs);
 	case IR_KILL:
 		return format("%7s%3d    ", info.name, ir->lhs);
 	case IR_UNLESS:
 		return format("%7s%3d L.%d ", info.name, ir->lhs, ir->rhs);
+	case IR_LABEL:
+		return format("%7s  L.%d  ", info.name, ir->lhs);
+	case IR_BLOCK_END:
+		return format("%7s  L.%d  ", info.name, ir->lhs);
+	case '+':
+		return format("%7s%3d[reg]%3d[reg] ", info.name, ir->lhs, ir->rhs);
 	default:
-		return format("unimplemented");
+		return format("unimplemented: %d\n", info.ty);
 	}
 }
 
@@ -95,7 +102,7 @@ static int gen_expr(Node *node, int *sp)
 
 	if (node->ty == ND_IDENT) {
 		int r = gen_lval(node);
-		*sp -= 4;
+		*sp -= 8;
 		add(IR_LOAD, r, r, *sp);
 		return r;
 	}
@@ -103,7 +110,7 @@ static int gen_expr(Node *node, int *sp)
 		int rhs = gen_expr(node->rhs, sp);
 		int lhs = gen_lval(node->lhs);
 		add(IR_STORE, lhs, rhs, *sp);
-		*sp += 4;
+		*sp += 8;
 		add(IR_KILL, rhs, -1, -1);
 		return lhs;
 	}

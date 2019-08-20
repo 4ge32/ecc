@@ -126,13 +126,13 @@ static Node *stmt()
 		t = tokens->data[pos];
 		if (t->ty == '{') {
 			expect('{');
+			node->ty = ND_ELSE_BLOCK;
 			node->stmts_then = new_vec();
 			while (t->ty != '}') {
 				vec_push(node->stmts_then, stmt());
 				t = tokens->data[pos];
 			}
 			expect('}');
-			node->ty = ND_ELSE_BLOCK;
 		} else {
 			node->ty = ND_ELSE;
 			node->then = stmt();

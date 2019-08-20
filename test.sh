@@ -18,12 +18,6 @@ try() {
 
 if [ $# = 1 ]; then
   if [ $1 = 'now' ]; then
-    echo 'a=2; return a;'
-    ./ecc 'a=2; return a;'
-    #echo 'if (0) return 2; else return 3;'
-    #./ecc 'if (0) {return 2;} else {return 3;}'
-    #echo 'if (1) {return 2;} else {return 3;}'
-    #./ecc 'if (1) {return 2;} else {return 3;}' -debug
     echo 'if (0) { a = 2; b = 3; } else {a = 10; b = 20; } return a + b;'
     ./ecc 'if (0) { a = 2; b = 3; } else {a = 10; b = 20; } return a + b;' -debug
     exit 0
