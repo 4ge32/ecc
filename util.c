@@ -69,34 +69,9 @@ bool map_exists(Map *map, char *key)
 
 int debug = 0;
 
-static void print_horizon(const char *str)
+void print_horizon(const char *str)
 {
 	printf("----- %s -----\n", str);
-}
-
-void show_token(Vector *v)
-{
-	if (!debug)
-		return;
-
-	print_horizon("TOKENIZE");
-
-	for (int i = 0; i < v->len; i++) {
-		Token *t = v->data[i];
-		if (t->ty == TK_NUM)
-			printf("TK_NUM:    %d\n", t->val);
-		else if (t->ty == TK_RETURN)
-			printf("TK_RETURN: %s(%d)\n", t->name, t->ty);
-		else if (t->ty == TK_IDENT)
-			printf("TK_IDENT:  %s(%d)\n", t->name, t->ty);
-		else if (t->ty == TK_IF)
-			printf("TK_IF:     %s(%d)\n", t->name, t->ty);
-		else if (t->ty == TK_ELSE)
-			printf("TK_ELSE:   %s(%d)\n", t->name, t->ty);
-		else
-			printf("ELSE:      %c(%d)\n", (char)t->ty, t->ty);
-	}
-	printf("\n");
 }
 
 static void show_lval(Node *node)
@@ -106,6 +81,9 @@ static void show_lval(Node *node)
 
 static void show_expr(Node *node)
 {
+	if (!node)
+		return;
+
 	if (node->ty == ND_NUM) {
 		printf("%d ", node->val);
 		return;
@@ -119,6 +97,8 @@ static void show_expr(Node *node)
 		return;
 	} else if (strchr("+-*/", node->ty))
 		printf("%c ", node->ty);
+	else if (node->ty == ND_FUNC)
+		printf("%s ", node->name);
 	else
 		printf("(root) ");
 

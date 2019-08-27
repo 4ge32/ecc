@@ -68,6 +68,7 @@ void alloc_regs(Vector *irv)
 			break;
 		case IR_LABEL:
 		case IR_BLOCK_END:
+		case IR_FUNC:
 			break;
 		default:
 			assert(0 && "unknown operator");

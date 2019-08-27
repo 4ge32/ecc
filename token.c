@@ -2,6 +2,34 @@
 
 Map *keywords;
 
+void show_token(Vector *v)
+{
+	if (!debug)
+		return;
+
+	print_horizon("TOKENIZE");
+
+	for (int i = 0; i < v->len; i++) {
+		Token *t = v->data[i];
+		if (t->ty == TK_NUM)
+			printf("TK_NUM:    %d\n", t->val);
+		else if (t->ty == TK_RETURN)
+			printf("TK_RETURN: %s(%d)\n", t->name, t->ty);
+		else if (t->ty == TK_IDENT)
+			printf("TK_IDENT:  %s(%d)\n", t->name, t->ty);
+		else if (t->ty == TK_IF)
+			printf("TK_IF:     %s(%d)\n", t->name, t->ty);
+		else if (t->ty == TK_ELSE)
+			printf("TK_ELSE:   %s(%d)\n", t->name, t->ty);
+		else if (t->ty == TK_FUNC)
+			printf("TK_FUNC:   %s\n", t->name);
+		else
+			printf("ELSE:      %c(%d)\n", (char)t->ty, t->ty);
+	}
+	printf("\n");
+}
+
+
 static Token *add_token(Vector *v, int ty, char *input)
 {
 	Token *t = malloc(sizeof(Token));
@@ -22,7 +50,7 @@ static Vector *scan(char *p)
 			continue;
 		}
 
-		if (strchr("+-*/;=(){}", *p)) {
+		if (strchr("+-*/;=(){},", *p)) {
 			add_token(v, *p, p);
 			p++;
 			continue;
@@ -34,11 +62,15 @@ static Vector *scan(char *p)
 			while (isalpha(p[len]) || isdigit(p[len]) || p[len] == '_')
 				len++;
 
+
 			// returns a pointer to a new string which is a duplicate of the string s.
 			char *name = strndup(p, len);
 			int ty = (intptr_t)map_get(keywords, name);
 			if (!ty)
 				ty = TK_IDENT;
+
+			if (*(p + len) == '(')
+				ty = TK_FUNC;
 
 			Token *t = add_token(v, ty, p);
 			t->name = name;

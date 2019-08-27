@@ -55,6 +55,15 @@ static Node *term()
 		return node;
 	}
 
+	if (t->ty == TK_FUNC) {
+		node->ty = ND_FUNC;
+		node->name = t->name;
+		expect('(');
+		while (t->ty != ')')
+			t = tokens->data[pos++];
+		return node;
+	}
+
 	error("number expected, but got %s", t->input);
 }
 

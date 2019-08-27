@@ -22,6 +22,7 @@ IRInfo irinfo[] = {
 	[IR_LABEL] = {"LABEL", IR_LABEL},
 	[IR_BLOCK_END] = {"BLK_END", IR_BLOCK_END},
 	[IR_ELSE] = {"ELSE", IR_ELSE},
+	[IR_FUNC] = {"CALL", IR_FUNC},
 	['+'] = {"ADD", '+'},
 	['-'] = {"SUB", '-'},
 };
@@ -51,6 +52,8 @@ static char *tostr(IR *ir)
 		return format("%7s  L.%d  ", info.name, ir->lhs);
 	case IR_BLOCK_END:
 		return format("%7s  L.%d  ", info.name, ir->lhs);
+	case IR_FUNC:
+		return format("%7s  %s  ", info.name, ir->name);
 	case '+':
 		return format("%7s%3d[reg]%3d[reg] ", info.name, ir->lhs, ir->rhs);
 	default:
@@ -75,6 +78,16 @@ static IR *add(int op, int lhs, int rhs, int sp)
 	ir->lhs = lhs;
 	ir->rhs = rhs;
 	ir->sp = sp;
+	vec_push(code, ir);
+	return ir;
+}
+
+static IR *call(int op, int lhs, char *name)
+{
+	IR *ir = malloc(sizeof(IR));
+	ir->op = op;
+	ir->lhs = lhs;
+	ir->name = name;
 	vec_push(code, ir);
 	return ir;
 }
@@ -113,6 +126,12 @@ static int gen_expr(Node *node, int *sp)
 		*sp += 8;
 		add(IR_KILL, rhs, -1, -1);
 		return lhs;
+	}
+
+	if (node->ty == ND_FUNC) {
+		int r = ++regno;
+		call(IR_FUNC, r, node->name);
+		return r;
 	}
 
 	assert(strchr("+-*/", node->ty));
@@ -184,6 +203,7 @@ static void gen_stmt(Node *node, int *sp)
 			gen_stmt(node->stmts->data[i], &stkp);
 		return;
 	}
+
 
 	error("unknown node: %d", node->ty);
 }
