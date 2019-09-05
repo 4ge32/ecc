@@ -3,13 +3,14 @@
 CC=gcc
 CC=riscv64-unknown-linux-gnu-gcc
 DMP=riscv64-unknown-linux-gnu-objdump
+OBJ="tmp-plus.o tmp-plusp.o tmp-pluspp.o"
 
 try() {
   expected="$1"
   input="$2"
 
   ./ecc "$input" > tmp.s
-  gcc -o tmp tmp.s tmp-plus.o
+  gcc -o tmp tmp.s $OBJ
   ./tmp
   actual="$?"
 
@@ -28,13 +29,15 @@ if [ $# = 1 ]; then
     $CC -static -o tmp tmp.s tmp-plus.o
     $DMP -d tmp > TMP.S
   else
-    ./ecc 'return 1 + 2;'
-    ./ecc 'return plus(2, 5);' -debug
+    ./ecc 'if (1)return 2;return 3;' -debug
+    #./ecc 'return plus(2, 5);' -debug
   fi
   exit 0
 fi
 
 echo 'int plus() { return 1 + 2; }' | gcc -xc -c -o tmp-plus.o -
+echo 'int plusp(int x, int y) { return x + y; }' | gcc -xc -c -o tmp-plusp.o -
+echo 'int pluspp(int a, int b, int c, int d, int e, int g) { return a+b+c+d+e+g; }' | gcc -xc -c -o tmp-pluspp.o -
 
 try 10 'return 2*3+4;'
 try 14 'return 2+3*4;'
@@ -61,6 +64,9 @@ try 2 'if (1) {return 2;} else {return 3;}'
 try 3 'if (0) {return 2;} else {return 3;}'
 try 5 'if (1) { a = 2; b = 3; } else {a = 10; b = 20; } return a + b;'
 try 30 'if (0) { a = 2; b = 3; } else {a = 10; b = 20; } return a + b;'
-try 3  'return plus();'
+try 3 'return plus();'
+try 5 'return plusp(2, 3);'
+try 10 'return plusp(4, 6);'
+try 27 'return pluspp(2, 3, 4, 5, 6, 7);'
 
 echo OK

@@ -53,6 +53,9 @@ void gen_riscv(Vector *irv) {
 			printf("  j    %s\n", ir->name);
 			printf("  mv   s1, a0\n");
 			break;
+		case IR_PUSH:
+			printf("  li   %s, %d\n", func_regs[ir->rhs], ir->lhs);
+			break;
 		case '+':
 			printf("  add  %s, %s, %s\n",
 			       regs[ir->lhs], regs[ir->lhs], regs[ir->rhs]);

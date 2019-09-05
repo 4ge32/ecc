@@ -97,8 +97,12 @@ static void show_expr(Node *node)
 		return;
 	} else if (strchr("+-*/", node->ty))
 		printf("%c ", node->ty);
-	else if (node->ty == ND_FUNC)
+	else if (node->ty == ND_FUNC) {
 		printf("%s ", node->name);
+		for (int i = 0; i < node->num_arg; i++) {
+			printf("%d ", node->arg[i]);
+		}
+	}
 	else
 		printf("(root) ");
 

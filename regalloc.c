@@ -1,9 +1,13 @@
 #include "ecc.h"
 
 char *regs[] = {"s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7"};
+char *func_regs[] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
 
 static bool used[sizeof(regs) / sizeof(*regs)];
 static int *reg_map;
+
+static bool arg_used[sizeof(func_regs) / sizeof(*func_regs)];
+static int *arg_map;
 
 static int alloc(int ir_reg)
 {
@@ -26,6 +30,25 @@ static int alloc(int ir_reg)
 	error("register exhausted");
 }
 
+static int alloc_args(int ir_reg)
+{
+	if (arg_map[ir_reg] != -1) {
+		int r = arg_map[ir_reg];
+		assert(arg_used[r]);
+		return r;
+	}
+
+	for (int i = 0; i < sizeof(func_regs) / sizeof(*func_regs); i++) {
+		if (arg_used[i])
+			continue;
+		arg_used[i] = true;
+		arg_map[ir_reg] = i;
+		return i;
+	}
+
+	error("register exhausted");
+}
+
 static void kill(int r) {
 	assert(used[r]);
 	used[r] = false;
@@ -37,6 +60,10 @@ void alloc_regs(Vector *irv)
 	reg_map = malloc(sizeof(int) * irv->len);
 	for (int i = 0; i < irv->len; i++)
 		reg_map[i] = -1;
+
+	arg_map = malloc(sizeof(int) * irv->len);
+	for (int i = 0; i < irv->len; i++)
+		arg_map[i] = -1;
 
 	for (int i = 0; i < irv->len; i++) {
 		IR *ir = irv->data[i];
@@ -56,6 +83,9 @@ void alloc_regs(Vector *irv)
 		case '/':
 			ir->lhs = alloc(ir->lhs);
 			ir->rhs = alloc(ir->rhs);
+			break;
+		case IR_PUSH:
+			ir->rhs = alloc_args(ir->lhs);
 			break;
 		case IR_UNLESS:
 			ir->lhs = alloc(ir->lhs);

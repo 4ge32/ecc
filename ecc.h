@@ -80,6 +80,9 @@ typedef struct Node {
 	// if
 	struct Node *cond;
 	struct Node *then;
+
+	int arg[6];
+	int num_arg;
 } Node;
 
 Node *parse(Vector *tokens);
@@ -100,6 +103,7 @@ enum {
 	IR_BLOCK_END,
 	IR_ELSE,
 	IR_FUNC,
+	IR_PUSH,
 };
 
 typedef struct {
@@ -120,6 +124,7 @@ Vector *gen_ir(Node *node);
 //regalloc.c
 
 extern char *regs[];
+extern char *func_regs[];
 void alloc_regs(Vector *irv);
 
 //codegen.c

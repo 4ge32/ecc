@@ -58,9 +58,16 @@ static Node *term()
 	if (t->ty == TK_FUNC) {
 		node->ty = ND_FUNC;
 		node->name = t->name;
+		node->stmts = new_vec();
 		expect('(');
-		while (t->ty != ')')
+		int i = 0;
+		while (t->ty != ')') {
 			t = tokens->data[pos++];
+			if (t->ty == ',')
+				continue;
+			node->arg[i++] = (int)strtol(t->input, NULL, 10);
+		}
+		node->num_arg = i - 1;
 		return node;
 	}
 

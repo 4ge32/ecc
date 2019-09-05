@@ -23,6 +23,7 @@ IRInfo irinfo[] = {
 	[IR_BLOCK_END] = {"BLK_END", IR_BLOCK_END},
 	[IR_ELSE] = {"ELSE", IR_ELSE},
 	[IR_FUNC] = {"CALL", IR_FUNC},
+	[IR_PUSH] = {"PUSH", IR_PUSH},
 	['+'] = {"ADD", '+'},
 	['-'] = {"SUB", '-'},
 };
@@ -54,6 +55,8 @@ static char *tostr(IR *ir)
 		return format("%7s  L.%d  ", info.name, ir->lhs);
 	case IR_FUNC:
 		return format("%7s  %s  ", info.name, ir->name);
+	case IR_PUSH:
+		return format("%7s  %d  ", info.name, ir->lhs);
 	case '+':
 		return format("%7s%3d[reg]%3d[reg] ", info.name, ir->lhs, ir->rhs);
 	default:
@@ -130,6 +133,9 @@ static int gen_expr(Node *node, int *sp)
 
 	if (node->ty == ND_FUNC) {
 		int r = ++regno;
+		for (int i = 0; i < node->num_arg; i++) {
+			add(IR_PUSH, node->arg[i], -1, -1);
+		}
 		call(IR_FUNC, r, node->name);
 		return r;
 	}
