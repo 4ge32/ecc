@@ -17,6 +17,8 @@ void show_token(Vector *v)
 			printf("TK_RETURN: %s(%d)\n", t->name, t->ty);
 		else if (t->ty == TK_IDENT)
 			printf("TK_IDENT:  %s(%d)\n", t->name, t->ty);
+		else if (t->ty == TK_INT)
+			printf("TK_INT:  %s(%d)\n", t->name, t->ty);
 		else if (t->ty == TK_IF)
 			printf("TK_IF:     %s(%d)\n", t->name, t->ty);
 		else if (t->ty == TK_ELSE)
@@ -98,5 +100,6 @@ Vector *tokenize(char *p)
 	map_put(keywords, "if", (void *)TK_IF);
 	map_put(keywords, "else", (void *)TK_ELSE);
 	map_put(keywords, "return", (void *)TK_RETURN);
+	map_put(keywords, "int", (void *)TK_INT);
 	return scan(p);
 }

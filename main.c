@@ -31,8 +31,6 @@ int main(int argc, char **argv)
 	Vector *irv = gen_ir(node);
 	alloc_regs(irv);
 
-	printf(".global main\n");
-	printf("main:\n");
 	gen_riscv(irv);
 	return 0;
 }

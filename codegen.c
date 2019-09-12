@@ -30,6 +30,11 @@ void gen_riscv(Vector *irv) {
 				printf("  addi sp, sp, -%d\n", ir->rhs);
 			printf("  mv   %s, sp\n", regs[ir->lhs]);
 			break;
+		case IR_DEALLOCA:
+			if (ir->rhs)
+				printf("  addi sp, sp, %d\n", ir->rhs);
+			printf("  mv   %s, sp\n", regs[ir->lhs]);
+			break;
 		case IR_LOAD:
 			printf("  lw   %s, %d(sp)\n", regs[ir->lhs], ir->sp);
 			break;
@@ -51,10 +56,20 @@ void gen_riscv(Vector *irv) {
 			break;
 		case IR_FUNC:
 			printf("  j    %s\n", ir->name);
-			printf("  mv   s1, a0\n");
+			printf("  mv   %s, a0\n", regs[ir->lhs]);
+			break;
+		case IR_FUNC_DEF:
+			if (!strcmp(ir->name, "main")) {
+				printf("\n.global main");
+			}
+			printf("\n%s:\n", ir->name);
 			break;
 		case IR_PUSH:
 			printf("  li   %s, %d\n", func_regs[ir->rhs], ir->lhs);
+			break;
+		case IR_POP:
+			printf("  mv   %s, %s\n", regs[ir->lhs], func_regs[ir->rhs]);
+			printf("  sw   %s, %d(sp)\n", regs[ir->lhs], ir->sp);
 			break;
 		case '+':
 			printf("  add  %s, %s, %s\n",

@@ -21,8 +21,8 @@ send:
 test_send:
 	scp -P 10000 $(TEST) root@localhost:~
 
-test: ecc
-	./test.sh
+#test: ecc
+#	./test.sh
 
 clean:
 	rm -f ecc *.o *~ tmp*

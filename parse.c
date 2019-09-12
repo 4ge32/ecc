@@ -113,6 +113,43 @@ static Node *stmt()
 	Node *node = malloc(sizeof(Node));
 	Token *t = tokens->data[pos];
 
+	if (t->ty == TK_INT) {
+		pos++;
+		t = tokens->data[pos];
+		if (t->ty != TK_FUNC) {
+			pos--;
+			node->ty = ND_EXPR_STMT;
+			node->expr = assign();
+			expect(';');
+			return node;
+		}
+	}
+
+	if (t->ty == TK_FUNC) {
+		node->ty = ND_FUNC_DEF;
+		node->name = t->name;
+		node->stmts = new_vec();
+		pos++;
+		expect('(');
+		int i = 0;
+		while (t->ty != ')') {
+			t = tokens->data[pos++];
+			if (t->ty == ',')
+				continue;
+			if (t->ty == TK_INT)
+				continue;
+			i++;
+		}
+		node->num_arg = i - 1;
+		expect('{');
+		while (t->ty != '}') {
+			vec_push(node->stmts, stmt());
+			t = tokens->data[pos];
+		}
+		expect('}');
+		return node;
+	}
+
 	if (t->ty == TK_IF) {
 		pos++;
 		node->ty = ND_IF;

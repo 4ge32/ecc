@@ -210,6 +210,21 @@ static void gen_stmt(Node *node, int *sp)
 		return;
 	}
 
+	if (node->ty == ND_FUNC_DEF) {
+		call(IR_FUNC_DEF, -1, node->name);
+		IR *alloca = add(IR_ALLOCA, basereg, -1, -1);
+		regno++;
+		for (int i = 0; i < node->num_arg; i++) {
+			add(IR_POP, i, i, -8 * (i + 1));
+		}
+		for (int i = 0; i < node->stmts->len; i++)
+			gen_stmt(node->stmts->data[i], &stkp);
+		alloca->rhs = bpoff;
+		IR *dealloca = add(IR_DEALLOCA, basereg, -1, -1);
+		dealloca->rhs = bpoff;
+		return;
+	}
+
 
 	error("unknown node: %d", node->ty);
 }
@@ -226,10 +241,7 @@ Vector *gen_ir(Node *node)
 	stkp = 0;
 	label = 0;
 
-	IR *alloca = add(IR_ALLOCA, basereg, -1, -1);
 	gen_stmt(node, &stkp);
-	alloca->rhs = bpoff;
-	add(IR_KILL, basereg, -1, -1);
 	dump_ir(code);
 	return code;
 }

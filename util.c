@@ -148,6 +148,12 @@ static void do_show_descendantTree(Node *node)
 			do_show_descendantTree(node->stmts->data[i]);
 		return;
 	}
+
+	if (node->ty == ND_FUNC_DEF) {
+		for (int i = 0; i < node->stmts->len; i++)
+			do_show_descendantTree(node->stmts->data[i]);
+		return;
+	}
 }
 
 void show_descendantTree(Node *node)

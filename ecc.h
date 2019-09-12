@@ -34,6 +34,7 @@ void util_test();
 enum {
 	TK_NUM = 256,
 	TK_IDENT,
+	TK_INT,
 	TK_IF,
 	TK_BLOCK_END,
 	TK_ELSE,
@@ -65,6 +66,7 @@ enum {
 	ND_IF_BLOCK,
 	ND_ELSE_BLOCK,
 	ND_FUNC,
+	ND_FUNC_DEF,
 };
 
 typedef struct Node {
@@ -94,6 +96,7 @@ enum {
 	IR_MOV,
 	IR_RETURN,
 	IR_ALLOCA,
+	IR_DEALLOCA,
 	IR_LOAD,
 	IR_STORE,
 	IR_KILL,
@@ -103,7 +106,9 @@ enum {
 	IR_BLOCK_END,
 	IR_ELSE,
 	IR_FUNC,
+	IR_FUNC_DEF,
 	IR_PUSH,
+	IR_POP,
 };
 
 typedef struct {
