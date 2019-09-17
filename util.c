@@ -102,7 +102,8 @@ static void show_expr(Node *node)
 		for (int i = 0; i < node->num_arg; i++) {
 			printf("%d ", node->arg[i]);
 		}
-	}
+	} else if (node->ty == ND_SUB)
+		printf("%c ", '-');
 	else
 		printf("(root) ");
 

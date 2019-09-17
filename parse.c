@@ -22,6 +22,14 @@ static bool consume(int ty)
 	return true;
 }
 
+static Node *new_node_num(int val)
+{
+	Node *node = malloc(sizeof(Node));
+	node->ty = ND_NUM;
+	node->val = val;
+	return node;
+}
+
 static Node *new_node(int op, Node *lhs, Node *rhs)
 {
 	Node *node = malloc(sizeof(Node));
@@ -74,16 +82,25 @@ static Node *term()
 	error("number expected, but got %s", t->input);
 }
 
+static Node *unary()
+{
+	if (consume('+'))
+		return term();
+	if (consume('-'))
+		return new_node('-', new_node_num(0), unary());
+	return term();
+}
+
 static Node *mul()
 {
-	Node *lhs = term();
+	Node *lhs = unary();
 	for (;;) {
 		Token *t = tokens->data[pos];
 		int op = t->ty;
 		if (op != '*' && op != '/')
 			return lhs;
 		pos++;
-		lhs = new_node(op, lhs, term());
+		lhs = new_node(op, lhs, unary());
 	}
 }
 
