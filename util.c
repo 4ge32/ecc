@@ -102,8 +102,7 @@ static void show_expr(Node *node)
 		for (int i = 0; i < node->num_arg; i++) {
 			printf("%d ", node->arg[i]);
 		}
-	}
-	else
+	} else
 		printf("(root) ");
 
 	show_expr(node->lhs);

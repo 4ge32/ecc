@@ -30,10 +30,9 @@ if [ $# = 1 ]; then
     $CC -static -o tmp tmp.s tmp-plus.o
     $DMP -d tmp > TMP.S
   else
-    ./ecc 'int test(int a) {  b = 9; return a+b; } int main() { return test(1);}' -debug
-    ./ecc 'int test(int a, int b) {c = 9; return a+b+c;} int main() { return test(1, 2);}' -debug
-    #./ecc 'if (1)return 2;return 3;' -debug
-    #./ecc 'return plus(2, 5);' -debug
+	#./ecc 'int main() {return 0-1;}' -debug
+	./ecc 'int main() {return - -10;}'
+	#./ecc 'int main() {return 5-1;}' -debug
   fi
   exit 0
 fi
@@ -42,6 +41,10 @@ echo 'int plus() { return 1 + 2; }' | gcc -xc -c -o tmp-plus.o -
 echo 'int plusp(int x, int y) { return x + y; }' | gcc -xc -c -o tmp-plusp.o -
 echo 'int pluspp(int a, int b, int c, int d, int e, int g) { return a+b+c+d+e+g; }' | gcc -xc -c -o tmp-pluspp.o -
 
+try 10 'int main() {return - -10;}'
+try 10 'int main() {return - -10;}'
+try 10 'int main() {return - - +10;}'
+try 10 'int main() {return -10+ 20;}'
 try 10 'int main() {return 2*3+4;}'
 try 14 'int main() {return 2+3*4;}'
 try 26 'int main() {return 2*3+4*5;}'
