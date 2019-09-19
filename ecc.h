@@ -67,6 +67,8 @@ enum {
 	ND_ELSE_BLOCK,
 	ND_FUNC,
 	ND_FUNC_DEF,
+	ND_EQ,
+	ND_NE,
 };
 
 typedef struct Node {
@@ -109,6 +111,8 @@ enum {
 	IR_FUNC_DEF,
 	IR_PUSH,
 	IR_POP,
+	IR_EQ,
+	IR_NE,
 };
 
 typedef struct {

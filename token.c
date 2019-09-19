@@ -52,6 +52,19 @@ static Vector *scan(char *p)
 			continue;
 		}
 
+		/* Firstly, you should tokenize longer tokens. */
+		if (!strncmp(p, "==", 2)) {
+			add_token(v, ND_EQ, p);
+			p += 2;
+			continue;
+		}
+
+		if (!strncmp(p, "!=", 2)) {
+			add_token(v, ND_NE, p);
+			p += 2;
+			continue;
+		}
+
 		if (strchr("+-*/;=(){},", *p)) {
 			add_token(v, *p, p);
 			p++;

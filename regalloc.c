@@ -82,6 +82,8 @@ void alloc_regs(Vector *irv)
 		case '-':
 		case '*':
 		case '/':
+		case IR_EQ:
+		case IR_NE:
 			ir->lhs = alloc(ir->lhs);
 			ir->rhs = alloc(ir->rhs);
 			break;

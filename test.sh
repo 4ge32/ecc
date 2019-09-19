@@ -31,7 +31,7 @@ if [ $# = 1 ]; then
     $DMP -d tmp > TMP.S
   else
 	#./ecc 'int main() {return 0-1;}' -debug
-	./ecc 'int main() {return - -10;}'
+	./ecc 'int main() {return 1 == 1;}'
 	#./ecc 'int main() {return 5-1;}' -debug
   fi
   exit 0
@@ -41,6 +41,8 @@ echo 'int plus() { return 1 + 2; }' | gcc -xc -c -o tmp-plus.o -
 echo 'int plusp(int x, int y) { return x + y; }' | gcc -xc -c -o tmp-plusp.o -
 echo 'int pluspp(int a, int b, int c, int d, int e, int g) { return a+b+c+d+e+g; }' | gcc -xc -c -o tmp-pluspp.o -
 
+try 1 'int main() {return 1 == 1;}'
+try 0 'int main() {return 1 != 1;}'
 try 10 'int main() {return - -10;}'
 try 10 'int main() {return - -10;}'
 try 10 'int main() {return - - +10;}'

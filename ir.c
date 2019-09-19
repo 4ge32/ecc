@@ -140,6 +140,25 @@ static int gen_expr(Node *node, int *sp)
 		return r;
 	}
 
+	if (node->ty == ND_EQ) {
+		int lhs = gen_expr(node->lhs, sp);
+		int rhs = gen_expr(node->rhs, sp);
+
+		add(IR_EQ, lhs, rhs, -1);
+		add(IR_KILL, rhs, -1, -1);
+		return lhs;
+	}
+
+	if (node->ty == ND_NE) {
+		int lhs = gen_expr(node->lhs, sp);
+		int rhs = gen_expr(node->rhs, sp);
+
+		add(IR_NE, lhs, rhs, -1);
+		add(IR_KILL, rhs, -1, -1);
+		return lhs;
+	}
+
+
 	assert(strchr("+-*/", node->ty));
 
 	int lhs = gen_expr(node->lhs, sp);
