@@ -158,8 +158,17 @@ static int gen_expr(Node *node, int *sp)
 		return lhs;
 	}
 
+	if (node->ty == ND_LE) {
+		int lhs = gen_expr(node->lhs, sp);
+		int rhs = gen_expr(node->rhs, sp);
 
-	assert(strchr("+-*/", node->ty));
+		add(IR_LE, lhs, rhs, -1);
+		add(IR_KILL, rhs, -1, -1);
+		return lhs;
+	}
+
+
+	assert(strchr("+-*/<", node->ty));
 
 	int lhs = gen_expr(node->lhs, sp);
 	int rhs = gen_expr(node->rhs, sp);

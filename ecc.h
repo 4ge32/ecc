@@ -69,6 +69,7 @@ enum {
 	ND_FUNC_DEF,
 	ND_EQ,
 	ND_NE,
+	ND_LE,
 };
 
 typedef struct Node {
@@ -113,6 +114,7 @@ enum {
 	IR_POP,
 	IR_EQ,
 	IR_NE,
+	IR_LE,
 };
 
 typedef struct {

@@ -93,6 +93,12 @@ void gen_riscv(Vector *irv) {
 		case IR_NE:
 			printf("  seqz %s, %s\n", regs[ir->lhs], regs[ir->rhs]);
 			break;
+		case IR_LE:
+			printf("  sgtz %s, %s\n", regs[ir->lhs], regs[ir->rhs]);
+			break;
+		case '<':
+			printf("  sgtz %s, %s\n", regs[ir->lhs], regs[ir->rhs]);
+			break;
 		case IR_NOP:
 			break;
 		default:

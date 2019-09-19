@@ -43,6 +43,13 @@ echo 'int pluspp(int a, int b, int c, int d, int e, int g) { return a+b+c+d+e+g;
 
 try 1 'int main() {return 1 == 1;}'
 try 0 'int main() {return 1 != 1;}'
+try 1 'int main() {return 0 < 1;}'
+try 1 'int main() {return 0 <= 1;}'
+try 0 'int main() {return 1 < 0;}'
+try 0 'int main() {return 1 <= 0;}'
+try 10 'int main() {if (1 <= 2) return 10; return 0;}'
+try 10 'int main() {if (1 < 2) return 10; return 0;}'
+try 10 'int main() {a = 2; b= 3; if (a < b) return 10; return 0;}'
 try 10 'int main() {return - -10;}'
 try 10 'int main() {return - -10;}'
 try 10 'int main() {return - - +10;}'

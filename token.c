@@ -65,7 +65,13 @@ static Vector *scan(char *p)
 			continue;
 		}
 
-		if (strchr("+-*/;=(){},", *p)) {
+		if (!strncmp(p, "<=", 2)) {
+			add_token(v, ND_LE, p);
+			p += 2;
+			continue;
+		}
+
+		if (strchr("+-*/;=(){},<", *p)) {
 			add_token(v, *p, p);
 			p++;
 			continue;

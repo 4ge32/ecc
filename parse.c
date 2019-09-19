@@ -104,16 +104,29 @@ static Node *mul()
 	}
 }
 
-static Node *equality()
+static Node *relational()
 {
 	Node *lhs = mul();
+	for (;;) {
+		Token *t = tokens->data[pos];
+		int op = t->ty;
+		if (op != '<' && op != ND_LE)
+			return lhs;
+		pos++;
+		lhs = new_node(op, lhs, mul());
+	}
+}
+
+static Node *equality()
+{
+	Node *lhs = relational();
 	for (;;) {
 		Token *t = tokens->data[pos];
 		int op = t->ty;
 		if (op != ND_EQ && op != ND_NE)
 			return lhs;
 		pos++;
-		lhs = new_node(op, lhs, mul());
+		lhs = new_node(op, lhs, relational());
 	}
 }
 
