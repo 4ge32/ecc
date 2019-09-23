@@ -26,24 +26,23 @@ typedef struct {
 } Map;
 
 // util_test.c
-
 void util_test();
 
-//token.c
-
+// token.c
 enum {
 	TK_NUM = 256,
 	TK_IDENT,
 	TK_INT,
 	TK_IF,
-	TK_BLOCK_END,
 	TK_ELSE,
 	TK_RETURN,
 	TK_FUNC,
+	TK_EQ = 300,
+	TK_NE,
+	TK_LE,
 	TK_EOF,
 };
 
-//Token type
 typedef struct {
 	int ty;
 	int val;
@@ -54,7 +53,6 @@ typedef struct {
 Vector *tokenize(char *p);
 
 //parse.c
-
 enum {
 	ND_NUM = 256,
 	ND_IDENT,
@@ -67,7 +65,7 @@ enum {
 	ND_ELSE_BLOCK,
 	ND_FUNC,
 	ND_FUNC_DEF,
-	ND_EQ,
+	ND_EQ = 300,
 	ND_NE,
 	ND_LE,
 };

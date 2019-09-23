@@ -110,7 +110,7 @@ static Node *relational()
 	for (;;) {
 		Token *t = tokens->data[pos];
 		int op = t->ty;
-		if (op != '<' && op != ND_LE)
+		if (op != '<' && op != TK_LE)
 			return lhs;
 		pos++;
 		lhs = new_node(op, lhs, mul());
@@ -123,7 +123,7 @@ static Node *equality()
 	for (;;) {
 		Token *t = tokens->data[pos];
 		int op = t->ty;
-		if (op != ND_EQ && op != ND_NE)
+		if (op != TK_EQ && op != TK_NE)
 			return lhs;
 		pos++;
 		lhs = new_node(op, lhs, relational());

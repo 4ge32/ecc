@@ -2,36 +2,6 @@
 
 Map *keywords;
 
-void show_token(Vector *v)
-{
-	if (!debug)
-		return;
-
-	print_horizon("TOKENIZE");
-
-	for (int i = 0; i < v->len; i++) {
-		Token *t = v->data[i];
-		if (t->ty == TK_NUM)
-			printf("TK_NUM:    %d\n", t->val);
-		else if (t->ty == TK_RETURN)
-			printf("TK_RETURN: %s(%d)\n", t->name, t->ty);
-		else if (t->ty == TK_IDENT)
-			printf("TK_IDENT:  %s(%d)\n", t->name, t->ty);
-		else if (t->ty == TK_INT)
-			printf("TK_INT:  %s(%d)\n", t->name, t->ty);
-		else if (t->ty == TK_IF)
-			printf("TK_IF:     %s(%d)\n", t->name, t->ty);
-		else if (t->ty == TK_ELSE)
-			printf("TK_ELSE:   %s(%d)\n", t->name, t->ty);
-		else if (t->ty == TK_FUNC)
-			printf("TK_FUNC:   %s\n", t->name);
-		else
-			printf("ELSE:      %c(%d)\n", (char)t->ty, t->ty);
-	}
-	printf("\n");
-}
-
-
 static Token *add_token(Vector *v, int ty, char *input)
 {
 	Token *t = malloc(sizeof(Token));
@@ -54,19 +24,19 @@ static Vector *scan(char *p)
 
 		/* Firstly, you should tokenize longer tokens. */
 		if (!strncmp(p, "==", 2)) {
-			add_token(v, ND_EQ, p);
+			add_token(v, TK_EQ, p);
 			p += 2;
 			continue;
 		}
 
 		if (!strncmp(p, "!=", 2)) {
-			add_token(v, ND_NE, p);
+			add_token(v, TK_NE, p);
 			p += 2;
 			continue;
 		}
 
 		if (!strncmp(p, "<=", 2)) {
-			add_token(v, ND_LE, p);
+			add_token(v, TK_LE, p);
 			p += 2;
 			continue;
 		}
@@ -77,14 +47,15 @@ static Vector *scan(char *p)
 			continue;
 		}
 
-		// Identifier
+		/* Identifier */
 		if (isalpha(*p) || *p == '_') {
 			int len = 1;
 			while (isalpha(p[len]) || isdigit(p[len]) || p[len] == '_')
 				len++;
 
-
-			// returns a pointer to a new string which is a duplicate of the string s.
+			/* Returns a pointer to a new string "name"
+			 * which is a duplicate of the string p.
+			 */
 			char *name = strndup(p, len);
 			int ty = (intptr_t)map_get(keywords, name);
 			if (!ty)
