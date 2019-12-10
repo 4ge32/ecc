@@ -1,5 +1,7 @@
 #include "ecc.h"
 
+int debug = 0;
+
 noreturn void error(char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
@@ -17,9 +19,21 @@ char *format(char *fmt, ...) {
 	return strdup(buf);
 }
 
+void show_node(const char *function, const char *fmt, ...)
+{
+	if (!debug)
+		return;
+
+	va_list ap;
+	fprintf(stdout, " %s ", function);
+	va_start(ap, fmt);
+	vfprintf(stdout, fmt, ap);
+	va_end(ap);
+}
+
 Vector *new_vec(void)
 {
-	Vector *v = malloc(sizeof(Vector));
+	Vector *v = calloc(1, sizeof(Vector));
 	v->data = malloc(sizeof(void *) * 16);
 	v->capacity = 16;
 	v->len = 0;
@@ -38,7 +52,7 @@ void vec_push(Vector *v, void *elem)
 
 Map *new_map(void)
 {
-	Map *map = malloc(sizeof(Map));
+	Map *map = calloc(1, sizeof(Map));
 	map->keys = new_vec();
 	map->vals = new_vec();
 	return map;
@@ -67,100 +81,7 @@ bool map_exists(Map *map, char *key)
 	return false;
 }
 
-int debug = 0;
-
 void print_horizon(const char *str)
 {
 	printf("----- %s -----\n", str);
-}
-
-static void show_lval(Node *node)
-{
-	printf("%s ", node->name);
-}
-
-static void show_expr(Node *node)
-{
-	if (!node)
-		return;
-
-	if (node->ty == ND_NUM) {
-		printf("%d ", node->val);
-		return;
-	} else if (node->ty == ND_IDENT) {
-		printf("%s ", node->name);
-		return;
-	} else if (node->ty == '=') {
-		printf("= ");
-		show_expr(node->rhs);
-		show_lval(node->lhs);
-		return;
-	} else if (strchr("+-*/", node->ty))
-		printf("%c ", node->ty);
-	else if (node->ty == ND_FUNC) {
-		printf("%s ", node->name);
-		for (int i = 0; i < node->num_arg; i++) {
-			printf("%d ", node->arg[i]);
-		}
-	} else
-		printf("(root) ");
-
-	show_expr(node->lhs);
-	show_expr(node->rhs);
-}
-
-static void do_show_descendantTree(Node *node)
-{
-	if (node->ty == ND_RETURN) {
-		show_expr(node->expr);
-		printf("return ");
-		printf("; ");
-		return;
-	}
-
-	if (node->ty == ND_IF) {
-		show_expr(node->cond);
-		do_show_descendantTree(node->then);
-		return;
-	}
-
-	if (node->ty == ND_ELSE) {
-		do_show_descendantTree(node->then);
-		return;
-	}
-
-	if (node->ty == ND_IF_BLOCK) {
-		show_expr(node->cond);
-		for (int i = 0; i < node->stmts->len; i++)
-			do_show_descendantTree(node->stmts->data[i]);
-		return;
-	}
-
-	if (node->ty == ND_EXPR_STMT) {
-		show_expr(node->expr);
-		printf("; ");
-		return;
-	}
-
-	if (node->ty == ND_COMP_STMT) {
-		for (int i = 0; i < node->stmts->len; i++)
-			do_show_descendantTree(node->stmts->data[i]);
-		return;
-	}
-
-	if (node->ty == ND_FUNC_DEF) {
-		for (int i = 0; i < node->stmts->len; i++)
-			do_show_descendantTree(node->stmts->data[i]);
-		return;
-	}
-}
-
-void show_descendantTree(Node *node)
-{
-	if (!debug)
-		return;
-
-	print_horizon("PARSE");
-	do_show_descendantTree(node);
-	printf("\n\n");
 }

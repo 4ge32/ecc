@@ -14,7 +14,6 @@ static int alloc(int ir_reg)
 	if (reg_map[ir_reg] != -1) {
 		int r = reg_map[ir_reg];
 		assert(used[r]);
-		//printf("!! %d\n", r);
 		return r;
 	}
 
@@ -23,7 +22,6 @@ static int alloc(int ir_reg)
 			continue;
 		used[i] = true;
 		reg_map[ir_reg] = i;
-		//printf("ALOC-%d\n", i);
 		return i;
 	}
 
@@ -70,10 +68,18 @@ void alloc_regs(Vector *irv)
 
 		switch (ir->op) {
 		case IR_IMM:
-		case IR_ALLOCA:
-		case IR_DEALLOCA:
-		case IR_RETURN:
+		case IR_RET:
 			ir->lhs = alloc(ir->lhs);
+			break;
+		case IR_KILL:
+			kill(reg_map[ir->lhs]);
+			ir->op = IR_NOP;
+			break;
+		case IR_EQ:
+		case IR_NE:
+		case IR_LE:
+			ir->lhs = alloc(ir->lhs);
+			ir->rhs = alloc(ir->rhs);
 			break;
 		case IR_STORE:
 		case IR_MOV:
@@ -83,36 +89,39 @@ void alloc_regs(Vector *irv)
 		case '*':
 		case '/':
 		case '<':
-		case IR_EQ:
-		case IR_NE:
-		case IR_LE:
-			ir->lhs = alloc(ir->lhs);
-			ir->rhs = alloc(ir->rhs);
-			break;
 		case IR_PUSH:
 			ir->rhs = alloc_args(ir->lhs);
 			break;
 		case IR_POP:
-		case IR_FUNC:
-			ir->lhs = alloc(ir->lhs);
-			break;
-		case IR_UNLESS:
+		//case IR_FUNC:
+		//	ir->lhs = alloc(ir->lhs);
+		//	break;
+		//case IR_UNLESS:
+		case IR_TRUE:
+		case IR_FALSE:
+		case IR_FUNC_IN:
+		case IR_FUNC_OUT:
 			ir->lhs = alloc(ir->lhs);
 			break;
 		case IR_ELSE:
 			break;
-		case IR_KILL:
-			kill(reg_map[ir->lhs]);
-			ir->op = IR_NOP;
-			break;
-		case IR_FUNC_DEF:
+		//case IR_FUNC_RET:
+		//case IR_FUNC_DEF:
 			break;
 		case IR_LABEL:
-		case IR_BLOCK_END:
+		//case IR_BLOCK_END:
+		//case IR_DUMMY1:
+		//case IR_DUMMY2:
+		//case IR_JP:
 			break;
 		default:
 			assert(0 && "unknown operator");
 		}
 	}
-}
 
+	for (int i = 0; i < sizeof(regs) / sizeof(*regs); i++) {
+		if (used[i]) {
+			assert(true);
+		}
+	}
+}
